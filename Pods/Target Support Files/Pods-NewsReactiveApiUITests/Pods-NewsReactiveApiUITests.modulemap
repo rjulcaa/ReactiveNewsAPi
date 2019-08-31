@@ -1,0 +1,6 @@
+framework module Pods_NewsReactiveApiUITests {
+  umbrella header "Pods-NewsReactiveApiUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

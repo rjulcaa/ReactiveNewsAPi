@@ -1,0 +1,6 @@
+framework module Pods_NewsReactiveApiTests {
+  umbrella header "Pods-NewsReactiveApiTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
