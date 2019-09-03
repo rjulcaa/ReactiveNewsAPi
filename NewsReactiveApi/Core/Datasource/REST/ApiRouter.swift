@@ -8,23 +8,6 @@
 
 import Foundation
 
-// https://newsapi.org/v2/top-headlines?country=us&apiKey=f9197e331ee2493193a31b43de428eb3 -> To search headlines
-
-//{Error
-//  "status": "error",
-//  "code": "apiKeyMissing",
-//  "message": "Your API key is missing. Append this to the URL with the apiKey param, or use the x-api-key HTTP header."
-//}
-
-//https://newsapi.org/v2/top-headlines?country=de&category=business&apiKey=f9197e331ee2493193a31b43de428eb3
-
-//struct ReqBody:Encodable {
-//  let q:String
-//}
-
-
-/*En esta clase se define los endpoints, se indica el método, patha parametros y el request que se podría enviar*/
-
 enum HTTPMethod:String{
   case GET
   case PUT
@@ -34,7 +17,6 @@ enum HTTPMethod:String{
 }
 
 enum ApiRouter {
-
   case articles(queryParameter: TopHeadLinesQuery)
   
   // MARK: - HTTPMethod
@@ -73,7 +55,7 @@ enum ApiRouter {
     newUrl?.queryItems = self.queryParamenters
     var urlRequest = URLRequest(url: newUrl!.url!)
     urlRequest.httpMethod = method.rawValue
-    urlRequest.addValue("Bearer f9197e331ee2493193a31b43de428eb3", forHTTPHeaderField: "Authorization")
+  //urlRequest.addValue("Bearer [Your_API_Key]", forHTTPHeaderField: "Authorization")
     return urlRequest
     
   }

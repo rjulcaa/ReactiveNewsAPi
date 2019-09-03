@@ -10,7 +10,7 @@ import Foundation
 import RxCocoa
 import RxSwift
 
-extension UIViewController: loadingView {}
+extension UIViewController: BaseViewControllerBehaviorProtocol {}
 
 extension Reactive where Base: UIViewController {
   
@@ -25,14 +25,24 @@ extension Reactive where Base: UIViewController {
     })
   }
   
+  public var errorAppear: Binder<String?>{
+    return Binder(self.base, binding: { (vc,value) in
+      if let message = value {
+        vc.presentAlertController(withMessage: message)
+      }
+      
+    })
+  }
+  
 }
 
-protocol loadingView{
 
+protocol BaseViewControllerBehaviorProtocol{
   func startAnimating()
   func stopAnimating()
+  func presentAlertController(withMessage message: String)
 }
-extension loadingView where Self : UIViewController {
+extension BaseViewControllerBehaviorProtocol where Self : UIViewController {
   func startAnimating(){
     let spinner = UIActivityIndicatorView(style: .gray)
     spinner.translatesAutoresizingMaskIntoConstraints = false
@@ -47,4 +57,14 @@ extension loadingView where Self : UIViewController {
       itemView.removeFromSuperview()
     }
   }
+  
+  func presentAlertController(withMessage message: String){
+    let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+
+    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+    
+    self.present(alert, animated: true)
+  }
 }
+
+

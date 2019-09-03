@@ -21,53 +21,30 @@ class NewsListViewController: UIViewController,Storyboarded {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    articlesTableView.dataSource = self
-    articlesTableView.delegate = self
     articlesTableView.register(UINib(nibName: "ArticleTableViewCell", bundle: nil), forCellReuseIdentifier: "ArticleCell")
-    articlesSubscription()
+    setupBinding()
     articlesViewModel.fetchArticles()
   }
   
-  private func articlesSubscription(){
+  private func setupBinding(){
     articlesViewModel.loading.bind(to: self.rx.isAnimating).disposed(by: disposbag)
+    articlesViewModel.errorObserver.bind(to: self.rx.errorAppear).disposed(by: disposbag)
+    bindTableView()
+  }
+  
+  private func bindTableView(){
     articlesViewModel.observer
-      .observeOn(MainScheduler.instance)
-      .subscribe(onNext: { [weak self] data in
-        
-        self?.articles = data
-        self?.articlesTableView.reloadData()
-        },onError: { err in
-          guard let error = err as? HttpError else{
-            print(err.localizedDescription)
-            return
-          }
-          print(error.getValue())
-      }).disposed(by: disposbag)
+      .bind(to: articlesTableView.rx.items(cellIdentifier: "ArticleCell", cellType: ArticleTableViewCell.self)){ row , model , cell in
+      cell.setup(article: model)
+      }.disposed(by: disposbag)
+    
+    articlesTableView.rx.modelSelected(ArticleViewModel.self)
+      .subscribe(onNext: { [weak self] model in
+        self?.coordinator?.articleDetail(articleViewModel: model)
+    }).disposed(by: disposbag)
   }
 
  
 }
 
 
-//Regular implementation
-extension NewsListViewController: UITableViewDataSource{
-  func numberOfSections(in tableView: UITableView) -> Int {
-    return 1
-  }
-
-  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "ArticleCell", for: indexPath) as! ArticleTableViewCell
-    cell.setup(article: articles[indexPath.row])
-    return cell
-  }
-  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return articles.count
-  }
-  
-}
-
-extension NewsListViewController:UITableViewDelegate{
-  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    coordinator?.articleDetail(articleViewModel: articles[indexPath.row])
-  }
-}

@@ -8,10 +8,12 @@
 
 import Foundation
 import RxSwift
+import RxRelay
 class ArticleListViewModel{
   
   private var articlesObserver = BehaviorSubject<[ArticleViewModel]>(value: [])
   public var loading:PublishSubject<Bool> = PublishSubject()
+  public var errorObserver:BehaviorRelay<String?> = BehaviorRelay<String?>(value: nil)
   public var observer:Observable<[ArticleViewModel]>{
     return articlesObserver.asObservable()
   }
@@ -25,7 +27,9 @@ class ArticleListViewModel{
       let articlesVM = articles.map{ArticleViewModel(article: $0)}
       self.articlesObserver.onNext(articlesVM)
     }) { (error) in
-      self.articlesObserver.onError(error)
+      self.loading.onNext(false)
+      let httpError = error as! HttpError
+      self.errorObserver.accept(httpError.getValue())
     }.disposed(by: disposeBag)
   }
   
